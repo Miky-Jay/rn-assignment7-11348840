@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity, FlatList, Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation, DrawerActions } from '@react-navigation/native';
 
-export default function CartScreen() {
+export default function Cart() {
     const [cartItems, setCartItems] = useState([]);
+    const [userName, setUserName] = useState(''); // Example name
+    const navigation = useNavigation();
 
     useEffect(() => {
         const fetchCartItems = async () => {
@@ -33,25 +36,34 @@ export default function CartScreen() {
         return cartItems.reduce((total, item) => total + item.price, 0);
     };
 
-    const renderCartItem = ({ item }) => (
+    const renderCartItem = ({ item }) => {
+       
+        return (
+      
         <View style={styles.cartItemContainer}>
-            <Image source={item.image} style={styles.cartItemImage} />
+            <Image source={{ uri: item.image }} style={styles.image} />
             <View style={styles.cartItemDetails}>
                 <Text style={styles.cartItemTitle}>{item.title}</Text>
                 <Text style={styles.cartItemPrice}>${item.price}</Text>
                 <Text style={styles.productDescription}>{item.description}</Text>
-                <TouchableOpacity onPress={() => removeFromCart(item.id)} style = {{alignItems: 'flex-end'}}>
-                    <Image source={require('../assets/images/remove.png')} style = {styles.removeImage}/>
+                <TouchableOpacity onPress={() => removeFromCart(item.id)} style={{ alignItems: 'flex-end' }}>
+                    <Image source={require('../assets/images/remove.png')} style={styles.removeImage} />
                 </TouchableOpacity>
             </View>
         </View>
     );
-
+    };
+    
     return (
         <View style={styles.container}>
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Open Fashion</Text>
-                <Image source={require('../assets/images/Search.png')} style={styles.icon} />
+                <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+                    <Image source={require('../assets/images/Menu.png')} style={styles.icon} />
+                </TouchableOpacity>
+                <Image source={require('../assets/images/Logo.png')} style={styles.logo} />
+                
+                <Image source={require('../assets/images/Filter.png')} style={styles.icon} />
+               
             </View>
             <Text style={styles.text}>Checkout</Text>
             <View style={styles.lineContainer}>
@@ -62,14 +74,14 @@ export default function CartScreen() {
             <FlatList
                 data={cartItems}
                 renderItem={renderCartItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 contentContainerStyle={styles.cartList}
+                numColumns={2}
             />
             <View style={styles.totalContainer}>
-                <Text style = {styles.text2}>EST. TOTAL</Text>
+                <Text style={styles.text2}>EST. TOTAL</Text>
                 <Text style={styles.totalText}>Total: ${getTotalPrice()}</Text>
             </View>
-            
         </View>
     );
 }
@@ -77,21 +89,25 @@ export default function CartScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 70,
-        marginLeft: 30,
-        marginRight: 30,
+        paddingLeft: 20,
+        paddingRight: 20,
+        marginTop: 30,
     },
     headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 25,
+        marginBottom: 15,
     },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        flex: 1,
         textAlign: 'center',
+        paddingLeft: 108,
+    },
+    logo: {
+        resizeMode: 'stretch',
+        marginLeft: 12,
     },
     icon: {
         width: 24,
@@ -112,63 +128,72 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     line: {
-        height: 1,
-        backgroundColor: '#000',
-        flex: 1,
+        height: 2,
+        backgroundColor: 'gray',
+        width: 70,
     },
     diamond: {
         width: 10,
         height: 10,
-        backgroundColor: '#000',
+        backgroundColor: 'white',
         transform: [{ rotate: '45deg' }],
         marginHorizontal: 10,
+        borderWidth: 3,
+        borderColor: 'black',
     },
     cartList: {
-        paddingVertical: 20,
-        marginTop: 10
+       padding: 0,
+       
+
     },
     cartItemContainer: {
-        flexDirection: 'row',
-        marginBottom: 20,
+        flex: 1,
+        margin: 10,
+        padding: 2,
+        borderRadius: 10,
+        position:'static',
+        marginBottom: 15,
+      
     },
-    cartItemImage: {
-        width: 200,
+    image: {
+        width: 150,
         height: 200,
-        resizeMode: 'contain',
+        resizeMode: 'cover',
+        borderRadius: 15,
     },
     cartItemDetails: {
         flex: 1,
-        marginLeft: 5,
+        marginLeft: 10,
         justifyContent: 'center',
     },
     cartItemTitle: {
         fontSize: 16,
         fontWeight: 'bold',
+        marginTop: 5,
     },
     cartItemPrice: {
         fontSize: 16,
-        color: '#f00',
-        marginVertical: 5,
-    },
-    removeImage: {
-        width: 20,
-        height: 20,
-        top: 37,
-    },
-    totalContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        padding: 20,
-        alignItems: 'center',
-    },
-    totalText: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        color: 'red',
+        marginTop: 10,
     },
     productDescription: {
         fontSize: 14,
         color: '#666',
         marginTop: 5,
-    }
+    },
+    removeImage: {
+        width: 20,
+        height: 20,
+    },
+    totalContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    totalText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: 'pink',
+    },
 });
